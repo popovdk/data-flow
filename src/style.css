@@ -1,0 +1,191 @@
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  color: #1f2933;
+  background: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e5e5e5;
+  background: #f9fafb;
+}
+
+.toolbar-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+button,
+.button {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+button:hover,
+.button:hover {
+  border-color: #9ca3af;
+}
+
+.button input[type="file"] {
+  display: none;
+}
+
+.pane {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(400px, 1.2fr);
+  height: 100%;
+  min-height: 0;
+}
+
+.editor-pane {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #e5e7eb;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#editor {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#editor .cm-editor {
+  height: 100%;
+}
+
+#editor .cm-scroller {
+  overflow: auto;
+}
+
+.diagnostics {
+  border-top: 1px solid #e5e7eb;
+  background: #f8fafc;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-y: auto;
+  max-height: 200px;
+}
+
+.diagnostic {
+  margin-bottom: 6px;
+}
+
+.diagnostic.error {
+  color: #b91c1c;
+}
+
+.diagnostic.warning {
+  color: #9a6700;
+}
+
+.diagram-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+#diagram-container {
+  flex: 1;
+  background: #ffffff;
+  overflow: hidden;
+  height: 100%;
+}
+
+#diagram {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.node-rect {
+  fill: #ffffff;
+  stroke: #cccccc;
+  stroke-width: 1.5;
+}
+
+.node-title {
+  font-weight: 700;
+  font-size: 13px;
+  fill: #222222;
+}
+
+.field-text {
+  font-size: 12px;
+  fill: #333333;
+}
+
+.field-bg {
+  fill: transparent;
+}
+
+.field {
+  cursor: pointer;
+}
+
+.field:hover .field-bg {
+  fill: #e8f3ff;
+}
+
+.field--active .field-bg {
+  fill: #d7ecff;
+}
+
+.field--reverse .field-bg {
+  fill: #d7ecff;
+}
+
+.edge {
+  stroke: #dddddd;
+  stroke-width: 2;
+  fill: none;
+  transition: stroke 0.2s ease, stroke-width 0.2s ease, opacity 0.2s ease;
+}
+
+.edge--active {
+  stroke: #2196f3;
+  stroke-width: 3;
+}
+
+.edge--reverse {
+  stroke: #2196f3;
+  stroke-width: 3;
+}
+
+.dim {
+  opacity: 0.2;
+}
+
+.empty-state {
+  font-size: 14px;
+  fill: #6b7280;
+}

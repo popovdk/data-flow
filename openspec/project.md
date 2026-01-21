@@ -3,8 +3,7 @@
 This document defines coding conventions and project rules for AI assistants and code-generation agents. It is intended to be read before implementing changes.
 
 ## Authoritative requirements (source of truth)
-- During the proposal stage, requirements live in `openspec/changes/add-data-flow-visualization-initial-spec/specs/data-flow-visualization/spec.md`.
-- After approval and archiving, requirements will live in `openspec/specs/data-flow-visualization/spec.md`.
+- Requirements live in `openspec/specs/data-flow-visualization/spec.md`.
 - Do not implement features that are not covered by the OpenSpec requirements unless explicitly requested.
 
 ## Language policy (hard rule)
@@ -30,10 +29,10 @@ Build a client-only static web application that visualizes data-flow diagrams de
 - Use `strict: true`. Avoid `any`; prefer `unknown` + narrowing.
 - Prefer **named exports**. Avoid default exports except for the app entry point if needed.
 - Use `PascalCase` for types/classes, `camelCase` for values/functions, `SCREAMING_SNAKE_CASE` for constants.
-- Use consistent file naming (recommended: `kebab-case.ts`).
-- Keep functions small and single-purpose; prefer pure functions in the “core” modules (see architecture).
+- Keep functions small and single-purpose; prefer pure functions in core modules.
 - Prefer `type` for unions/intersections and `interface` for object shapes that are expected to be extended.
 - Use explicit return types for exported functions.
+- Use consistent file naming (current code uses `camelCase.ts`).
 
 ### Formatting
 - Keep line length readable (recommended: ~100).
@@ -43,12 +42,11 @@ Build a client-only static web application that visualizes data-flow diagrams de
 ### Error handling and diagnostics (no exceptions in UI flow)
 - The UI should not rely on exceptions for control flow.
 - Parsing/validation results should be returned as explicit values:
-  - `model` (or `null`) + `diagnostics: Diagnostic[]`
-- Diagnostics should be stable and machine-friendly (agents will parse them):
-  - `kind`: `"error"` | `"warning"`
-  - `code`: short stable identifier (e.g., `DSL_SYNTAX_UNCLOSED_BRACE`)
+  - `diagram` (or `null`) + `diagnostics: Diagnostic[]`
+- Diagnostics are user-facing and include:
+  - `severity`: `"error"` | `"warning"`
   - `message`: human-readable English sentence
-  - `loc`: `{ line: number; column: number }` (1-based)
+  - `line` and `column` (1-based)
 - Prefer accumulating multiple diagnostics over failing fast (especially for validation).
 
 ### Security (XSS hard rules)
@@ -60,32 +58,29 @@ Build a client-only static web application that visualizes data-flow diagrams de
 ## Architecture patterns (agents: follow these boundaries)
 Prefer **Functional Core / Imperative Shell**:
 - **Core (pure-ish, testable, no DOM access)**:
-  - `dsl/` parser and token/AST utilities
-  - `validate/` semantic validation
-  - `graph/` field graph, traversal, bundling
-  - `layout/` layout adapter that transforms a model to positioned nodes/edges
-  - `model/` shared types
+  - `diagram/parser.ts` (DSL → AST)
+  - `diagram/validator.ts` (AST → diagnostics + model)
+  - `diagram/graph.ts` (field graph + traversal + bundling)
+  - `diagram/layout.ts` (positions + routes)
+  - `diagram/types.ts` (domain types)
 - **Shell (DOM/event-driven)**:
-  - `ui/` editor integration (CodeMirror)
-  - `render/` SVG rendering, export
-  - `interaction/` hover/selection state, zoom/pan integration
-  - `persistence/` localStorage, file import/export, URL hash sharing
-  - `app/` composition, state wiring, debouncing
+  - `editor/` (CodeMirror integration)
+  - `diagram/renderer.ts` (SVG rendering)
+  - `diagram/diagramController.ts` (interaction + zoom/pan)
+  - `shared/` (persistence, export, debounce)
+  - `app/` (composition, state wiring, debouncing)
 
-### Suggested directory structure
-This is a guideline for consistency; adjust only with a clear reason.
+### Current directory structure
 ```
 src/
   app/
-  dsl/
-  validate/
-  model/
-  graph/
-  layout/
-  render/
-  interaction/
-  persistence/
-  ui/
+  diagram/
+  editor/
+  shared/
+  types/
+  app.ts
+  main.ts
+  style.css
 ```
 
 ### Data model naming (glossary)
@@ -102,7 +97,6 @@ src/
 
 ## Performance guidelines
 - Debounce parsing/validation/render updates (target 300–500ms).
-- Prefer incremental DOM updates where easy; avoid full re-render if not necessary.
 - Use event delegation where possible (avoid per-field listeners for large diagrams).
 
 ## Testing strategy (recommended for this stack)
