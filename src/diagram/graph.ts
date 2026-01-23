@@ -1,8 +1,7 @@
+import type { DiagramModel, FieldModel } from "../dsl";
 import type {
   BundledEdge,
-  DiagramModel,
   FieldIndexEntry,
-  FieldModel,
   GraphConnection,
   GraphData,
   HighlightState,

@@ -1,8 +1,8 @@
-import { buildGraph, bundleConnections } from "../diagram/graph";
-import { computeLayout } from "../diagram/layout";
-import { parseDsl } from "../diagram/parser";
-import { validateDiagram } from "../diagram/validator";
-import type { DiagramData, Diagnostic } from "../diagram/types";
+import { parseDsl, validateDiagram } from "../dsl";
+import { buildGraph, bundleConnections } from "./graph";
+import { computeLayout } from "./layout";
+import type { Diagnostic } from "../dsl";
+import type { DiagramData } from "./types";
 
 export interface DiagramBuildResult {
   diagnostics: Diagnostic[];

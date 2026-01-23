@@ -1,10 +1,10 @@
 import Panzoom from "@panzoom/panzoom";
 
-import { computeHighlight } from "./graph";
+import { computeHighlight } from "../diagram";
 import { DiagramRenderer } from "./renderer";
 import { PANZOOM_CONFIG } from "../app/constants";
 import { PANZOOM_EXCLUDE_CLASS } from "./constants";
-import type { DiagramData, HighlightState } from "./types";
+import type { DiagramData, HighlightState } from "../diagram";
 
 export interface DiagramOptions {
   debugConnections: boolean;

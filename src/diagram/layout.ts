@@ -1,8 +1,8 @@
 import * as dagre from "dagre";
 
+import type { DiagramModel } from "../dsl";
 import type {
   BundledEdge,
-  DiagramModel,
   FieldLayout,
   LayoutGroup,
   LayoutNode,

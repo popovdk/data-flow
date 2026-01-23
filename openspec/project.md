@@ -58,15 +58,17 @@ Build a client-only static web application that visualizes data-flow diagrams de
 ## Architecture patterns (agents: follow these boundaries)
 Prefer **Functional Core / Imperative Shell**:
 - **Core (pure-ish, testable, no DOM access)**:
-  - `diagram/parser.ts` (DSL → AST)
-  - `diagram/validator.ts` (AST → diagnostics + model)
+  - `dsl/parser.ts` (DSL → AST)
+  - `dsl/validator.ts` (AST → diagnostics + model)
+  - `dsl/types.ts` (AST/model + diagnostics types)
   - `diagram/graph.ts` (field graph + traversal + bundling)
   - `diagram/layout.ts` (positions + routes)
-  - `diagram/types.ts` (domain types)
+  - `diagram/diagramBuilder.ts` (parse/validate/build pipeline)
+  - `diagram/types.ts` (graph/layout/result types)
 - **Shell (DOM/event-driven)**:
   - `editor/` (CodeMirror integration)
-  - `diagram/renderer.ts` (SVG rendering)
-  - `diagram/diagramController.ts` (interaction + zoom/pan)
+  - `render/renderer.ts` (SVG rendering)
+  - `render/diagramController.ts` (interaction + zoom/pan)
   - `shared/` (persistence, export, debounce)
   - `app/` (composition, state wiring, debouncing)
 
@@ -74,8 +76,10 @@ Prefer **Functional Core / Imperative Shell**:
 ```
 src/
   app/
+  dsl/
   diagram/
   editor/
+  render/
   shared/
   types/
   app.ts
