@@ -1,12 +1,7 @@
 import * as dagre from "dagre";
 
-import type {
-  BundledEdge,
-  DiagramModel,
-  FieldLayout,
-  LayoutNode,
-  LayoutResult,
-} from "./types";
+import type { DiagramModel } from "../dsl";
+import type { BundledEdge, FieldLayout, LayoutNode, LayoutResult } from "./types";
 
 const CHAR_WIDTH = 7;
 const NODE_MIN_WIDTH = 160;

@@ -6,12 +6,11 @@ import { copyTextToClipboard } from "./clipboard";
 import { buildAppLayout } from "./appLayout";
 import { DIAGNOSTICS_EMPTY_MESSAGE, DEBOUNCE_MS } from "./constants";
 import { DiagnosticsRenderer } from "./diagnosticsRenderer";
-import { DiagramBuilder } from "./diagramBuilder";
+import { DiagramBuilder, type DiagramData } from "../diagram";
 import { loadInitialDsl } from "./initialDsl";
 import { ToolbarCallbacks, ToolbarController } from "./toolbarController";
 import { EditorController } from "../editor/editorController";
-import { DiagramController } from "../diagram/diagramController";
-import type { DiagramData } from "../diagram/types";
+import { DiagramController } from "../render";
 
 export class AppController {
   private readonly root: HTMLElement;

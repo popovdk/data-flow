@@ -4,7 +4,7 @@ import type {
   DiagramModel,
   HighlightState,
   LayoutResult,
-} from "./types";
+} from "../diagram";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const NODE_PADDING_X = 14;

@@ -113,6 +113,11 @@ Whitespace and blank lines are ignored.
 - Errors include line/column and do not crash the app
 - When DSL is invalid, the last valid diagram stays visible
 
+## Architecture
+- DSL core: `src/dsl` (parser, validator, AST/model + diagnostics)
+- Diagram core: `src/diagram` (graph, layout, build pipeline)
+- Web UI: `src/render`, `src/app`, `src/editor`, `src/shared` (renderer, controller, UI wiring)
+
 ## Example (realistic flow)
 See `src/app/examples.ts` for a larger business flow example.
 

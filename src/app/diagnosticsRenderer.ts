@@ -1,4 +1,4 @@
-import type { Diagnostic } from "../diagram/types";
+import type { Diagnostic } from "../dsl";
 
 export class DiagnosticsRenderer {
   private readonly host: HTMLElement;
