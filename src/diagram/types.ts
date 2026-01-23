@@ -15,7 +15,16 @@ export interface Diagnostic {
 
 export interface AstDiagram {
   nodes: AstNode[];
+  groups: AstGroup[];
   connections: AstConnection[];
+}
+
+export interface AstGroup {
+  type: "group";
+  id: string;
+  label?: string;
+  nodes: AstNode[];
+  loc: SourceLocation;
 }
 
 export interface AstNode {
@@ -62,6 +71,13 @@ export interface NodeModel {
   loc: SourceLocation;
 }
 
+export interface GroupModel {
+  id: string;
+  label?: string;
+  nodeIds: string[];
+  loc: SourceLocation;
+}
+
 export interface ConnectionModel {
   source: { nodeId: string; fieldPath: string; loc: SourceLocation };
   target: { nodeId: string; fieldPath: string; loc: SourceLocation };
@@ -70,6 +86,7 @@ export interface ConnectionModel {
 
 export interface DiagramModel {
   nodes: NodeModel[];
+  groups?: GroupModel[];
   connections: ConnectionModel[];
 }
 
@@ -125,12 +142,23 @@ export interface LayoutNode {
   fields: FieldLayout[];
 }
 
+export interface LayoutGroup {
+  id: string;
+  label: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  nodeIds: string[];
+}
+
 export interface LayoutResult {
   nodes: LayoutNode[];
   nodeIndex: Map<string, LayoutNode>;
   edges: Map<string, { x: number; y: number }[]>;
   bounds: { width: number; height: number };
   fieldLayouts: Map<string, FieldLayout>;
+  groups: LayoutGroup[];
 }
 
 export interface DiagramData {

@@ -55,6 +55,17 @@ node Api [label="Public API"] {
 }
 ```
 
+### Groups
+Group related nodes into labeled columns. Groups are laid out left-to-right in
+declaration order, and nodes inside a group are stacked vertically.
+```text
+group Backend [label="Backend API"] {
+  node Api [label="Public API"] {
+    id: String
+  }
+}
+```
+
 ### Fields
 Fields are `name: Type`.
 ```text
