@@ -4,3 +4,4 @@ node_modules
 .cursor
 dist
 **/.DS_Store
+src/dsl/parser.generated.ts
