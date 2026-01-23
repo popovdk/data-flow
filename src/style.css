@@ -133,6 +133,18 @@ button:hover,
   stroke-width: 1.5;
 }
 
+.group-rect {
+  fill: #f8fafc;
+  stroke: #bbbbbb;
+  stroke-width: 1.5;
+}
+
+.group-label {
+  font-size: 12px;
+  font-weight: 600;
+  fill: #4b5563;
+}
+
 .node-title {
   font-weight: 700;
   font-size: 13px;

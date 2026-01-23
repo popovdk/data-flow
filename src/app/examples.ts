@@ -1,108 +1,120 @@
-export const EXAMPLE_DSL = `node WebCheckout {
-  sessionId: String
-  user {
-    id: String
-    email: String
-  }
-  cart {
-    id: String
-    total: Money
-    currency: String
-  }
-  payment {
-    cardToken: String
-  }
-  shipping {
-    address {
-      city: String
-      country: String
-      postalCode: String
+export const EXAMPLE_DSL = `group Checkout [label="Checkout"] {
+  node WebCheckout {
+    sessionId: String
+    user {
+      id: String
+      email: String
+    }
+    cart {
+      id: String
+      total: Money
+      currency: String
+    }
+    payment {
+      cardToken: String
+    }
+    shipping {
+      address {
+        city: String
+        country: String
+        postalCode: String
+      }
     }
   }
 }
 
-node PricingService {
-  cartId: String
-  currency: String
-  taxTotal: Money
-  discountTotal: Money
-  total: Money
+group Core [label="Core Services"] {
+  node PricingService {
+    cartId: String
+    currency: String
+    taxTotal: Money
+    discountTotal: Money
+    total: Money
+  }
+
+  node OrderService {
+    orderId: String
+    userId: String
+    userEmail: String
+    total: Money
+    currency: String
+    taxTotal: Money
+    discountTotal: Money
+    paymentToken: String
+    transactionId: String
+    paymentStatus: String
+    fraudDecision: String
+    inventoryReservationId: String
+    inventoryStatus: String
+    shipmentId: String
+    shippingCity: String
+    shippingCountry: String
+    shippingPostalCode: String
+    status: String
+  }
 }
 
-node OrderService {
-  orderId: String
-  userId: String
-  userEmail: String
-  total: Money
-  currency: String
-  taxTotal: Money
-  discountTotal: Money
-  paymentToken: String
-  transactionId: String
-  paymentStatus: String
-  fraudDecision: String
-  inventoryReservationId: String
-  inventoryStatus: String
-  shipmentId: String
-  shippingCity: String
-  shippingCountry: String
-  shippingPostalCode: String
-  status: String
+group Risk [label="Risk"] {
+  node FraudService {
+    orderId: String
+    amount: Money
+    currency: String
+    riskScore: Float
+    decision: String
+  }
 }
 
-node FraudService {
-  orderId: String
-  amount: Money
-  currency: String
-  riskScore: Float
-  decision: String
+group Payments [label="Payments"] {
+  node PaymentGateway {
+    paymentToken: String
+    amount: Money
+    currency: String
+    transactionId: String
+    authStatus: String
+  }
 }
 
-node PaymentGateway {
-  paymentToken: String
-  amount: Money
-  currency: String
-  transactionId: String
-  authStatus: String
+group Fulfillment [label="Fulfillment"] {
+  node InventoryService {
+    orderId: String
+    reservationId: String
+    itemsReserved: Boolean
+  }
+
+  node Fulfillment {
+    orderId: String
+    shipmentId: String
+    carrier: String
+    trackingNumber: String
+  }
+
+  node Notifications {
+    userEmail: String
+    orderId: String
+    shipmentId: String
+    status: String
+    trackingNumber: String
+  }
 }
 
-node InventoryService {
-  orderId: String
-  reservationId: String
-  itemsReserved: Boolean
-}
+group Analytics [label="Analytics"] {
+  node Analytics {
+    sessionId: String
+    eventType: String
+    orderId: String
+    revenue: Money
+    currency: String
+    taxTotal: Money
+    discountTotal: Money
+    riskScore: Float
+    carrier: String
+  }
 
-node Fulfillment {
-  orderId: String
-  shipmentId: String
-  carrier: String
-  trackingNumber: String
-}
-
-node Notifications {
-  userEmail: String
-  orderId: String
-  shipmentId: String
-  status: String
-  trackingNumber: String
-}
-
-node Analytics {
-  sessionId: String
-  eventType: String
-  orderId: String
-  revenue: Money
-  currency: String
-  taxTotal: Money
-  discountTotal: Money
-  riskScore: Float
-  carrier: String
-}
-
-node CRM {
-  customerId: String
-  orderId: String
-  lifetimeValue: Money
+  node CRM {
+    customerId: String
+    orderId: String
+    lifetimeValue: Money
+  }
 }
 
 WebCheckout.sessionId -> Analytics.sessionId

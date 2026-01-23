@@ -13,19 +13,33 @@ const grammar = String.raw`
 Diagram
   = _ items:(Statement _)* {
       const nodes = [];
+      const groups = [];
       const connections = [];
       for (const item of items) {
         const stmt = item[0];
         if (stmt.type === "node") {
           nodes.push(stmt);
+        } else if (stmt.type === "group") {
+          groups.push(stmt);
+          nodes.push(...stmt.nodes);
         } else {
           connections.push(stmt);
         }
       }
-      return { nodes, connections };
+      return { nodes, groups, connections };
     }
 
-Statement = Node / Connection
+Statement = Group / Node / Connection
+
+Group
+  = "group" __ id:Identifier _ label:Label? _ "{" _ nodes:GroupNodeList? _ "}" {
+      return { type: "group", id, label, nodes: nodes ?? [], loc: loc() };
+    }
+
+GroupNodeList
+  = first:Node rest:(_ Node)* {
+      return [first, ...rest.map((item) => item[1])];
+    }
 
 Node
   = "node" __ id:Identifier _ label:Label? _ "{" _ fields:FieldList? _ "}" {

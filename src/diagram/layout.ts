@@ -4,6 +4,7 @@ import type {
   BundledEdge,
   DiagramModel,
   FieldLayout,
+  LayoutGroup,
   LayoutNode,
   LayoutResult,
 } from "./types";
@@ -16,6 +17,12 @@ const HEADER_HEIGHT = 24;
 const ROW_HEIGHT = 18;
 const ROW_GAP = 4;
 const INDENT_SIZE = 12;
+const GROUP_PADDING_X = 24;
+const GROUP_PADDING_Y = 24;
+const GROUP_LABEL_HEIGHT = 22;
+const COLUMN_GAP = 100;
+const NODE_GAP = 50;
+const LAYOUT_MARGIN = 40;
 
 type FieldRow = { path: string; label: string; depth: number };
 
@@ -57,10 +64,62 @@ const estimateNodeSize = (
   return { width, height };
 };
 
-export function computeLayout(
+const buildLayoutNode = (
+  node: DiagramModel["nodes"][number],
+  size: { width: number; height: number; rows: FieldRow[] },
+  x: number,
+  y: number,
+  fieldLayouts: Map<string, FieldLayout>,
+): LayoutNode => {
+  const fieldsStartY = y + NODE_PADDING_Y + HEADER_HEIGHT;
+  const fields: FieldLayout[] = [];
+
+  size.rows.forEach((row, index) => {
+    const rowY = fieldsStartY + index * (ROW_HEIGHT + ROW_GAP);
+    const layout: FieldLayout = {
+      key: `${node.id}.${row.path}`,
+      nodeId: node.id,
+      path: row.path,
+      label: row.label,
+      depth: row.depth,
+      x: x + NODE_PADDING_X,
+      y: rowY,
+      width: size.width - NODE_PADDING_X * 2,
+      height: ROW_HEIGHT,
+    };
+    fields.push(layout);
+    fieldLayouts.set(layout.key, layout);
+  });
+
+  return {
+    id: node.id,
+    x,
+    y,
+    width: size.width,
+    height: size.height,
+    fields,
+  };
+};
+
+const buildNodeSizing = (diagram: DiagramModel) => {
+  const nodeSizing = new Map<
+    string,
+    { width: number; height: number; rows: FieldRow[] }
+  >();
+
+  for (const node of diagram.nodes) {
+    const rows = buildFieldRows(node.fields);
+    const size = estimateNodeSize(node.label ?? node.id, rows);
+    nodeSizing.set(node.id, { ...size, rows });
+  }
+
+  return nodeSizing;
+};
+
+const computeDagreLayout = (
   diagram: DiagramModel,
   bundles: BundledEdge[],
-): LayoutResult {
+): LayoutResult => {
   const graph = new dagre.graphlib.Graph();
   graph.setGraph({
     rankdir: "LR",
@@ -72,15 +131,13 @@ export function computeLayout(
   });
   graph.setDefaultEdgeLabel(() => ({}));
 
-  const nodeSizing = new Map<
-    string,
-    { width: number; height: number; rows: FieldRow[] }
-  >();
+  const nodeSizing = buildNodeSizing(diagram);
 
   for (const node of diagram.nodes) {
-    const rows = buildFieldRows(node.fields);
-    const size = estimateNodeSize(node.label ?? node.id, rows);
-    nodeSizing.set(node.id, { ...size, rows });
+    const size = nodeSizing.get(node.id);
+    if (!size) {
+      continue;
+    }
     graph.setNode(node.id, { width: size.width, height: size.height });
   }
 
@@ -95,7 +152,7 @@ export function computeLayout(
   const fieldLayouts = new Map<string, FieldLayout>();
 
   for (const node of diagram.nodes) {
-    const layoutNode = graph.node(node.id) as { x: number; y: number };
+    const layoutNode = graph.node(node.id) as { x: number; y: number } | undefined;
     const size = nodeSizing.get(node.id);
     if (!layoutNode || !size) {
       continue;
@@ -103,34 +160,7 @@ export function computeLayout(
 
     const x = layoutNode.x - size.width / 2;
     const y = layoutNode.y - size.height / 2;
-    const fieldsStartY = y + NODE_PADDING_Y + HEADER_HEIGHT;
-
-    const fields: FieldLayout[] = [];
-    size.rows.forEach((row, index) => {
-      const rowY = fieldsStartY + index * (ROW_HEIGHT + ROW_GAP);
-      const layout: FieldLayout = {
-        key: `${node.id}.${row.path}`,
-        nodeId: node.id,
-        path: row.path,
-        label: row.label,
-        depth: row.depth,
-        x: x + NODE_PADDING_X,
-        y: rowY,
-        width: size.width - NODE_PADDING_X * 2,
-        height: ROW_HEIGHT,
-      };
-      fields.push(layout);
-      fieldLayouts.set(layout.key, layout);
-    });
-
-    const layout: LayoutNode = {
-      id: node.id,
-      x,
-      y,
-      width: size.width,
-      height: size.height,
-      fields,
-    };
+    const layout = buildLayoutNode(node, size, x, y, fieldLayouts);
     nodes.push(layout);
     nodeIndex.set(node.id, layout);
   }
@@ -154,5 +184,139 @@ export function computeLayout(
       height: (bounds.height ?? 0) + 80,
     },
     fieldLayouts,
+    groups: [],
   };
+};
+
+const computeGroupedLayout = (diagram: DiagramModel): LayoutResult => {
+  const nodeSizing = buildNodeSizing(diagram);
+  const nodeById = new Map(diagram.nodes.map((node) => [node.id, node]));
+  const nodes: LayoutNode[] = [];
+  const nodeIndex = new Map<string, LayoutNode>();
+  const fieldLayouts = new Map<string, FieldLayout>();
+  const groups: LayoutGroup[] = [];
+
+  const declaredGroups = diagram.groups ?? [];
+  const groupedNodeIds = new Set<string>();
+  declaredGroups.forEach((group) => {
+    group.nodeIds.forEach((nodeId) => groupedNodeIds.add(nodeId));
+  });
+
+  const ungroupedNodeIds = diagram.nodes
+    .filter((node) => !groupedNodeIds.has(node.id))
+    .map((node) => node.id);
+
+  let currentX = LAYOUT_MARGIN;
+  const startY = LAYOUT_MARGIN;
+
+  for (const group of declaredGroups) {
+    const nodeIds = group.nodeIds.filter((nodeId) => nodeById.has(nodeId));
+    const sizes = nodeIds
+      .map((nodeId) => nodeSizing.get(nodeId))
+      .filter(
+        (value): value is { width: number; height: number; rows: FieldRow[] } =>
+          Boolean(value),
+      );
+
+    const maxNodeWidth = sizes.reduce(
+      (max, size) => Math.max(max, size.width),
+      0,
+    );
+    const contentHeight =
+      sizes.reduce((total, size) => total + size.height, 0) +
+      Math.max(0, sizes.length - 1) * NODE_GAP;
+    const label = group.label ?? group.id;
+    const labelWidth = label.length * CHAR_WIDTH + GROUP_PADDING_X * 2;
+    const groupWidth = Math.max(maxNodeWidth + GROUP_PADDING_X * 2, labelWidth);
+    const groupHeight = Math.max(
+      GROUP_PADDING_Y * 2 + GROUP_LABEL_HEIGHT,
+      GROUP_PADDING_Y * 2 + GROUP_LABEL_HEIGHT + contentHeight,
+    );
+
+    groups.push({
+      id: group.id,
+      label,
+      x: currentX,
+      y: startY,
+      width: groupWidth,
+      height: groupHeight,
+      nodeIds,
+    });
+
+    let nodeY = startY + GROUP_PADDING_Y + GROUP_LABEL_HEIGHT;
+    const nodeX = currentX + GROUP_PADDING_X;
+    for (const nodeId of nodeIds) {
+      const node = nodeById.get(nodeId);
+      const size = nodeSizing.get(nodeId);
+      if (!node || !size) {
+        continue;
+      }
+      const layout = buildLayoutNode(node, size, nodeX, nodeY, fieldLayouts);
+      nodes.push(layout);
+      nodeIndex.set(node.id, layout);
+      nodeY += size.height + NODE_GAP;
+    }
+
+    currentX += groupWidth + COLUMN_GAP;
+  }
+
+  if (ungroupedNodeIds.length) {
+    const sizes = ungroupedNodeIds
+      .map((nodeId) => nodeSizing.get(nodeId))
+      .filter(
+        (value): value is { width: number; height: number; rows: FieldRow[] } =>
+          Boolean(value),
+      );
+    const maxNodeWidth = sizes.reduce(
+      (max, size) => Math.max(max, size.width),
+      0,
+    );
+    let nodeY = startY;
+    const nodeX = currentX;
+    for (const nodeId of ungroupedNodeIds) {
+      const node = nodeById.get(nodeId);
+      const size = nodeSizing.get(nodeId);
+      if (!node || !size) {
+        continue;
+      }
+      const layout = buildLayoutNode(node, size, nodeX, nodeY, fieldLayouts);
+      nodes.push(layout);
+      nodeIndex.set(node.id, layout);
+      nodeY += size.height + NODE_GAP;
+    }
+    currentX += maxNodeWidth + COLUMN_GAP;
+  }
+
+  let maxX = 0;
+  let maxY = 0;
+  nodes.forEach((node) => {
+    maxX = Math.max(maxX, node.x + node.width);
+    maxY = Math.max(maxY, node.y + node.height);
+  });
+  groups.forEach((group) => {
+    maxX = Math.max(maxX, group.x + group.width);
+    maxY = Math.max(maxY, group.y + group.height);
+  });
+
+  return {
+    nodes,
+    nodeIndex,
+    edges: new Map(),
+    bounds: {
+      width: maxX + LAYOUT_MARGIN,
+      height: maxY + LAYOUT_MARGIN,
+    },
+    fieldLayouts,
+    groups,
+  };
+};
+
+export function computeLayout(
+  diagram: DiagramModel,
+  bundles: BundledEdge[],
+): LayoutResult {
+  if (diagram.groups?.length) {
+    return computeGroupedLayout(diagram);
+  }
+  return computeDagreLayout(diagram, bundles);
 }
