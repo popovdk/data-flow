@@ -4,12 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "generate:parser": "node scripts/generateDslParser.mjs",
+    "predev": "npm run generate:parser",
     "dev": "vite",
+    "prebuild": "npm run generate:parser",
     "build": "vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
     "@types/dagre": "^0.7.53",
+    "peggy": "^5.0.6",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
   },
@@ -17,7 +21,6 @@
     "@codemirror/state": "^6.5.4",
     "@panzoom/panzoom": "^4.6.1",
     "codemirror": "^6.0.2",
-    "dagre": "^0.8.5",
-    "peggy": "^5.0.6"
+    "dagre": "^0.8.5"
   }
 }
