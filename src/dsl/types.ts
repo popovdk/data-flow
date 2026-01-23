@@ -15,7 +15,16 @@ export interface Diagnostic {
 
 export interface AstDiagram {
   nodes: AstNode[];
+  groups: AstGroup[];
   connections: AstConnection[];
+}
+
+export interface AstGroup {
+  type: "group";
+  id: string;
+  label?: string;
+  nodes: AstNode[];
+  loc: SourceLocation;
 }
 
 export interface AstNode {
@@ -62,6 +71,13 @@ export interface NodeModel {
   loc: SourceLocation;
 }
 
+export interface GroupModel {
+  id: string;
+  label?: string;
+  nodeIds: string[];
+  loc: SourceLocation;
+}
+
 export interface ConnectionModel {
   source: { nodeId: string; fieldPath: string; loc: SourceLocation };
   target: { nodeId: string; fieldPath: string; loc: SourceLocation };
@@ -70,5 +86,6 @@ export interface ConnectionModel {
 
 export interface DiagramModel {
   nodes: NodeModel[];
+  groups?: GroupModel[];
   connections: ConnectionModel[];
 }

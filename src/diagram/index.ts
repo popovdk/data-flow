@@ -9,6 +9,7 @@ export type {
   GraphConnection,
   GraphData,
   HighlightState,
+  LayoutGroup,
   LayoutNode,
   LayoutResult,
 } from "./types";
@@ -16,6 +17,7 @@ export type {
   ConnectionModel,
   DiagramModel,
   FieldModel,
+  GroupModel,
   NodeModel,
 } from "../dsl";
 export type { DiagramBuildResult } from "./diagramBuilder";

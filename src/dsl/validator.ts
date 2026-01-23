@@ -3,6 +3,7 @@ import type {
   Diagnostic,
   DiagramModel,
   FieldModel,
+  GroupModel,
   NodeModel,
   SourceLocation,
 } from "./types";
@@ -95,6 +96,21 @@ export function validateDiagram(ast: AstDiagram): {
 } {
   const diagnostics: Diagnostic[] = [];
   const seenNodes = new Map<string, SourceLocation>();
+  const seenGroups = new Map<string, SourceLocation>();
+
+  for (const group of ast.groups) {
+    if (seenGroups.has(group.id)) {
+      diagnostics.push(
+        makeDiagnostic(
+          `Duplicate group id "${group.id}".`,
+          group.loc,
+          "error",
+        ),
+      );
+    } else {
+      seenGroups.set(group.id, group.loc);
+    }
+  }
 
   for (const node of ast.nodes) {
     if (seenNodes.has(node.id)) {
@@ -116,6 +132,13 @@ export function validateDiagram(ast: AstDiagram): {
     label: node.label,
     fields: normalizeFields(node.fields),
     loc: node.loc,
+  }));
+
+  const groups: GroupModel[] = ast.groups.map((group) => ({
+    id: group.id,
+    label: group.label,
+    nodeIds: group.nodes.map((node) => node.id),
+    loc: group.loc,
   }));
 
   const nodeMap = new Map(nodes.map((node) => [node.id, node]));
@@ -254,5 +277,12 @@ export function validateDiagram(ast: AstDiagram): {
     }
   }
 
-  return { diagram: { nodes, connections }, diagnostics };
+  return {
+    diagram: {
+      nodes,
+      groups: groups.length ? groups : undefined,
+      connections,
+    },
+    diagnostics,
+  };
 }

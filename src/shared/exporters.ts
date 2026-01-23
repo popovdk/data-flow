@@ -11,6 +11,8 @@ const downloadBlob = (blob: Blob, filename: string) => {
 
 const inlineSvgStyles = `
 .node-rect { fill: #fff; stroke: #ccc; stroke-width: 1.5; }
+.group-rect { fill: #f8fafc; stroke: #bbbbbb; stroke-width: 1.5; }
+.group-label { font-size: 12px; font-weight: 600; fill: #4b5563; }
 .node-title { font-weight: 700; font-size: 13px; fill: #222; }
 .field-text { font-size: 12px; fill: #333; }
 .field-bg { fill: transparent; }

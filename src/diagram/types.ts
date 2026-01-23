@@ -52,12 +52,23 @@ export interface LayoutNode {
   fields: FieldLayout[];
 }
 
+export interface LayoutGroup {
+  id: string;
+  label: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  nodeIds: string[];
+}
+
 export interface LayoutResult {
   nodes: LayoutNode[];
   nodeIndex: Map<string, LayoutNode>;
   edges: Map<string, { x: number; y: number }[]>;
   bounds: { width: number; height: number };
   fieldLayouts: Map<string, FieldLayout>;
+  groups: LayoutGroup[];
 }
 
 export interface DiagramData {

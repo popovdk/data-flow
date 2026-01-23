@@ -11,11 +11,14 @@ const NODE_PADDING_X = 14;
 const NODE_PADDING_Y = 12;
 const INDENT_SIZE = 12;
 const EMPTY_MESSAGE = "No valid diagram to display yet.";
+const GROUP_LABEL_OFFSET_X = 16;
+const GROUP_LABEL_OFFSET_Y = 18;
 
 type EdgePoint = { x: number; y: number };
 type LabelMap = Map<string, string>;
 type SvgGroups = {
   viewport: SVGGElement;
+  groups: SVGGElement;
   edges: SVGGElement;
   nodes: SVGGElement;
 };
@@ -44,6 +47,7 @@ export class DiagramRenderer {
     const context = this.buildRenderContext(options);
     this.prepareSvg(context.layout);
     const groups = this.createGroups();
+    this.renderGroups(groups.groups, context);
     this.renderEdges(groups.edges, context);
     this.renderNodes(groups.nodes, context);
   }
@@ -84,12 +88,27 @@ export class DiagramRenderer {
 
   private createGroups(): SvgGroups {
     const viewport = createSvgGroup("viewport");
+    const groups = createSvgGroup("groups");
     const edges = createSvgGroup("edges");
     const nodes = createSvgGroup("nodes");
+    viewport.appendChild(groups);
     viewport.appendChild(edges);
     viewport.appendChild(nodes);
     this.svg.appendChild(viewport);
-    return { viewport, edges, nodes };
+    return { viewport, groups, edges, nodes };
+  }
+
+  private renderGroups(groups: SVGGElement, context: RenderContext): void {
+    context.layout.groups.forEach((group) => {
+      const hasActiveNode = group.nodeIds.some((nodeId) =>
+        context.highlight.activeNodeIds.has(nodeId),
+      );
+      const className = buildGroupClassName(context.highlight, hasActiveNode);
+      const groupElement = createSvgGroup(className);
+      groupElement.appendChild(createGroupRect(group));
+      groupElement.appendChild(createGroupLabel(group));
+      groups.appendChild(groupElement);
+    });
   }
 
   private renderEdges(groups: SVGGElement, context: RenderContext): void {
@@ -388,6 +407,17 @@ const buildNodeClassName = (
   return classes.join(" ");
 };
 
+const buildGroupClassName = (
+  highlight: HighlightState,
+  isActive: boolean,
+): string => {
+  const classes = ["group"];
+  if (highlight.hasHighlight && !isActive) {
+    classes.push("dim");
+  }
+  return classes.join(" ");
+};
+
 const buildFieldClassName = (
   highlight: HighlightState,
   isActive: boolean,
@@ -413,6 +443,29 @@ const createNodeRect = (node: LayoutResult["nodes"][number]): SVGRectElement =>
     ry: "8",
     class: "node-rect",
   });
+
+const createGroupRect = (
+  group: LayoutResult["groups"][number],
+): SVGRectElement =>
+  createSvgElement("rect", {
+    x: `${group.x}`,
+    y: `${group.y}`,
+    width: `${group.width}`,
+    height: `${group.height}`,
+    rx: "10",
+    ry: "10",
+    class: "group-rect",
+  });
+
+const createGroupLabel = (
+  group: LayoutResult["groups"][number],
+): SVGTextElement =>
+  createSvgText(
+    "group-label",
+    group.x + GROUP_LABEL_OFFSET_X,
+    group.y + GROUP_LABEL_OFFSET_Y,
+    group.label,
+  );
 
 const createNodeTitle = (
   node: LayoutResult["nodes"][number],

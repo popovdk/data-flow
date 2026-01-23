@@ -73,11 +73,16 @@ The DSL SHALL follow these rules:
 ### Requirement: Validation of uniqueness constraints
 The validator SHALL enforce:
 - Node ids are unique within a document.
+- Group ids are unique within a document.
 - Sibling field names at the same nesting level within a node are unique.
 
 #### Scenario: Duplicate node id is rejected
 - **WHEN** the DSL defines `node X { ... }` more than once
 - **THEN** validation returns a semantic error indicating a duplicate node id
+
+#### Scenario: Duplicate group id is rejected
+- **WHEN** the DSL defines `group Backend { ... }` more than once
+- **THEN** validation returns a semantic error indicating a duplicate group id
 
 ### Requirement: Validation of connection references
 The validator SHALL enforce that each connection references existing nodes and existing field paths. If a connection references an unknown node or a non-existent field path, the system SHALL produce a semantic error.
@@ -171,13 +176,18 @@ The system SHALL provide a debug mode that, when enabled, displays all field-lev
 
 ### Requirement: Automatic layout (left-to-right layered)
 The system SHALL compute an automatic layout using a layered/hierarchical approach with a left-to-right flow direction.
+When groups are declared, the layout SHALL arrange groups as columns from left to right in the order they appear in the DSL. Nodes within a group SHALL be stacked vertically in declaration order with consistent vertical spacing. Nodes declared outside any group SHALL be placed in an implicit "Ungrouped" column after all explicit groups.
 
 Default spacing guidelines:
-- Horizontal spacing between nodes: 80–120px
+- Horizontal spacing between groups/columns: 80–120px
 - Vertical spacing between nodes: 40–60px
 
-#### Scenario: Layout places nodes left-to-right
-- **WHEN** a diagram is rendered
+#### Scenario: Layout places groups left-to-right
+- **WHEN** the DSL declares multiple groups
+- **THEN** the diagram places the groups in the declared order from left to right and stacks their nodes vertically
+
+#### Scenario: Layout places nodes left-to-right when no groups exist
+- **WHEN** a diagram contains no groups
 - **THEN** nodes are positioned in layers from left to right to reflect flow direction
 
 ### Requirement: Field path highlighting (direct connections)
@@ -270,6 +280,12 @@ The directory structure SHALL reflect these layers (for example, `src/dsl/`, `sr
 The system SHALL represent diagrams using a model equivalent to the following TypeScript shapes:
 
 ```typescript
+interface Group {
+  id: string;
+  label?: string;
+  nodeIds: string[];
+}
+
 interface Node {
   id: string;
   label?: string;
@@ -290,6 +306,7 @@ interface Connection {
 
 interface Diagram {
   nodes: Node[];
+  groups?: Group[];
   connections: Connection[];
 }
 ```
@@ -297,6 +314,10 @@ interface Diagram {
 #### Scenario: Nested field has a full dot-path
 - **WHEN** a nested field is declared (e.g., `body { username: String }`)
 - **THEN** the normalized model stores the nested field with a full path (e.g., `body.username`)
+
+#### Scenario: Group preserves declaration order
+- **WHEN** the DSL declares `group A { node X { } node Y { } } group B { node Z { } }`
+- **THEN** the model stores groups in the order `A`, `B` and the `nodeIds` for group `A` are `[X, Y]`
 
 ### Requirement: Recommended technology stack
 The initial implementation SHALL use a minimal, frameworkless frontend stack:
@@ -323,4 +344,28 @@ The MVP MUST include:
 #### Scenario: MVP supports basic authoring and inspection
 - **WHEN** a user enters a valid DSL diagram
 - **THEN** the diagram renders and field hover highlights related connections
+
+### Requirement: DSL group declarations
+The DSL SHALL support group declarations using the following structure:
+- `group <GroupId> { ... }`
+- Optional modifiers in square brackets, currently supporting `label="..."`:
+  - `group <GroupId> [label="Custom Label"] { ... }`
+
+Group identifiers are case-sensitive and MUST be unique within a document. Group bodies SHALL contain node declarations only. Node declarations MAY appear either at the top level or inside a group.
+
+#### Scenario: Declaring a group with a labeled node
+- **WHEN** the DSL contains `group Backend [label="Backend API"] { node Api [label="API"] { id: String } }`
+- **THEN** the model includes a group with id `Backend`, label `Backend API`, and a node `Api` that belongs to that group
+
+### Requirement: Group visual representation
+Groups SHALL be rendered as rectangular boundaries that enclose their member nodes. Each group SHALL display a label (the group label or id) near the top-left of the boundary.
+
+Default style guidelines:
+- Border: 1–2px solid `#bbb`
+- Corner radius: 8–12px
+- Padding around contained nodes: 20–30px
+
+#### Scenario: Rendering a group boundary and label
+- **WHEN** a group with a label is present in the model
+- **THEN** the diagram shows an outlined region with the label and the group's nodes inside
 
