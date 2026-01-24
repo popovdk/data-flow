@@ -126,7 +126,6 @@ const traverseFull = (
   edgeByPair: Map<string, string[]>,
   fieldSet: Set<string>,
   edgeSet: Set<string>,
-  graph: GraphData,
   reverse: boolean,
 ) => {
   const visited = new Set<string>();
@@ -153,36 +152,6 @@ const traverseFull = (
       }
     }
 
-    const entry = graph.fieldIndex.get(current);
-    if (!entry) {
-      continue;
-    }
-    const nodeId = entry.nodeId;
-    if (reverse) {
-      const sources = graph.nodeSourceFields.get(nodeId);
-      const targets = graph.nodeTargetFields.get(nodeId);
-      if (sources?.has(current) && targets?.size === 1) {
-        for (const next of targets) {
-          if (!visited.has(next)) {
-            visited.add(next);
-            fieldSet.add(next);
-            queue.push(next);
-          }
-        }
-      }
-    } else {
-      const targets = graph.nodeTargetFields.get(nodeId);
-      const sources = graph.nodeSourceFields.get(nodeId);
-      if (targets?.has(current) && sources?.size === 1) {
-        for (const next of sources) {
-          if (!visited.has(next)) {
-            visited.add(next);
-            fieldSet.add(next);
-            queue.push(next);
-          }
-        }
-      }
-    }
   }
 };
 
@@ -229,7 +198,6 @@ export function computeHighlight(
     graph.edgeByPair,
     activeFieldKeys,
     activeEdgeKeys,
-    graph,
     false,
   );
   if (reverse) {
@@ -239,7 +207,6 @@ export function computeHighlight(
       graph.edgeByPair,
       reverseFieldKeys,
       reverseEdgeKeys,
-      graph,
       true,
     );
   }
