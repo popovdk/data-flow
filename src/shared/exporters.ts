@@ -1,3 +1,5 @@
+import { cloneSvgElement } from "../app/dom";
+
 const downloadBlob = (blob: Blob, filename: string) => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -25,7 +27,7 @@ const inlineSvgStyles = `
 `;
 
 const serializeSvg = (svg: SVGSVGElement) => {
-  const clone = svg.cloneNode(true) as SVGSVGElement;
+  const clone = cloneSvgElement(svg);
   clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
   style.textContent = inlineSvgStyles;

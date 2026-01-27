@@ -31,6 +31,14 @@ export interface RenderOptions {
   debugConnections: boolean;
 }
 
+interface ValidatedRenderOptions {
+  diagram: DiagramModel;
+  layout: LayoutResult;
+  bundles: BundledEdge[];
+  highlight: HighlightState;
+  debugConnections: boolean;
+}
+
 export class DiagramRenderer {
   private readonly svg: SVGSVGElement;
 
@@ -39,12 +47,13 @@ export class DiagramRenderer {
   }
 
   render(options: RenderOptions): void {
-    if (!options.diagram || !options.layout) {
+    const validated = this.validateOptions(options);
+    if (!validated) {
       this.renderEmptyState();
       return;
     }
 
-    const context = this.buildRenderContext(options);
+    const context = this.buildRenderContext(validated);
     this.prepareSvg(context.layout);
     const groups = this.createGroups();
     this.renderGroups(groups.groups, context);
@@ -52,14 +61,27 @@ export class DiagramRenderer {
     this.renderNodes(groups.nodes, context);
   }
 
-  private buildRenderContext(options: RenderOptions) {
+  private validateOptions(options: RenderOptions): ValidatedRenderOptions | null {
+    if (!options.diagram || !options.layout) {
+      return null;
+    }
     return {
-      diagram: options.diagram as DiagramModel,
-      layout: options.layout as LayoutResult,
+      diagram: options.diagram,
+      layout: options.layout,
       bundles: options.bundles,
       highlight: options.highlight,
       debugConnections: options.debugConnections,
-      labelById: this.buildLabelMap(options.diagram as DiagramModel),
+    };
+  }
+
+  private buildRenderContext(options: ValidatedRenderOptions): RenderContext {
+    return {
+      diagram: options.diagram,
+      layout: options.layout,
+      bundles: options.bundles,
+      highlight: options.highlight,
+      debugConnections: options.debugConnections,
+      labelById: this.buildLabelMap(options.diagram),
     };
   }
 

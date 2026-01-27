@@ -13,6 +13,15 @@ export interface Diagnostic {
   severity: DiagnosticSeverity;
 }
 
+/** PEG.js/Peggy syntax error structure */
+export interface PegJsSyntaxError {
+  message: string;
+  location: {
+    start: { line: number; column: number; offset: number };
+    end: { line: number; column: number; offset: number };
+  };
+}
+
 export interface AstDiagram {
   nodes: AstNode[];
   groups: AstGroup[];
