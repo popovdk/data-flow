@@ -8,6 +8,7 @@ import type {
   LayoutNode,
   LayoutResult,
 } from "./types";
+import { getEdgePoints, getGraphBounds, getNodePosition } from "./dagreTypes";
 
 const CHAR_WIDTH = 7;
 const NODE_MIN_WIDTH = 160;
@@ -152,14 +153,14 @@ const computeDagreLayout = (
   const fieldLayouts = new Map<string, FieldLayout>();
 
   for (const node of diagram.nodes) {
-    const layoutNode = graph.node(node.id) as { x: number; y: number } | undefined;
+    const nodePosition = getNodePosition(graph, node.id);
     const size = nodeSizing.get(node.id);
-    if (!layoutNode || !size) {
+    if (!nodePosition || !size) {
       continue;
     }
 
-    const x = layoutNode.x - size.width / 2;
-    const y = layoutNode.y - size.height / 2;
+    const x = nodePosition.x - size.width / 2;
+    const y = nodePosition.y - size.height / 2;
     const layout = buildLayoutNode(node, size, x, y, fieldLayouts);
     nodes.push(layout);
     nodeIndex.set(node.id, layout);
@@ -167,14 +168,14 @@ const computeDagreLayout = (
 
   const edges = new Map<string, { x: number; y: number }[]>();
   for (const edge of graph.edges()) {
-    const edgeData = graph.edge(edge) as { points?: { x: number; y: number }[] };
+    const points = getEdgePoints(graph, edge);
     const key = `${edge.v}->${edge.w}`;
-    if (edgeData?.points?.length) {
-      edges.set(key, edgeData.points);
+    if (points?.length) {
+      edges.set(key, points);
     }
   }
 
-  const bounds = graph.graph() as { width?: number; height?: number };
+  const bounds = getGraphBounds(graph);
   return {
     nodes,
     nodeIndex,

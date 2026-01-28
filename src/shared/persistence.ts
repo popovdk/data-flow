@@ -40,7 +40,7 @@ const decompressText = async (bytes: Uint8Array): Promise<string> => {
   if (!supportsCompression()) {
     return new TextDecoder().decode(bytes);
   }
-  const stream = new Blob([bytes as BlobPart]).stream().pipeThrough(
+  const stream = new Blob([bytes]).stream().pipeThrough(
     new DecompressionStream("gzip"),
   );
   return new Response(stream).text();

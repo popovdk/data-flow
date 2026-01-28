@@ -31,3 +31,22 @@ export const isButtonElement = (
 
 export const isSvgElement = (element: Element): element is SVGSVGElement =>
   element instanceof SVGSVGElement;
+
+/**
+ * Type-safe clone for SVG elements.
+ * cloneNode(true) always returns same type for Element subclasses per DOM spec.
+ */
+export const cloneSvgElement = <T extends SVGElement>(element: T): T =>
+  element.cloneNode(true) as T;
+
+/**
+ * Type guard for event.target as HTMLInputElement.
+ * Returns null if target is not an input element.
+ */
+export const getInputTarget = (event: Event): HTMLInputElement | null => {
+  const target = event.target;
+  if (target instanceof HTMLInputElement) {
+    return target;
+  }
+  return null;
+};

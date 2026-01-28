@@ -1,4 +1,5 @@
 import type { AppControls } from "./appLayout";
+import { getInputTarget } from "./dom";
 
 export type VoidCallback = () => void;
 
@@ -59,9 +60,9 @@ export class ToolbarController {
   }
 
   private async handleUpload(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement | null;
+    const input = getInputTarget(event);
     const file = input?.files?.[0];
-    if (!file) {
+    if (!file || !input) {
       return;
     }
     const text = await file.text();
