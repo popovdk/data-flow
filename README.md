@@ -132,10 +132,6 @@ Whitespace and blank lines are ignored.
 ## Example (realistic flow)
 See `src/app/examples.ts` for a larger business flow example.
 
-## OpenSpec (internal)
-- `openspec/specs` (current capabilities)
-- `openspec/changes` (active and proposed changes)
-
 ## Quick start
 ```bash
 npm install
