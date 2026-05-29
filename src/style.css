@@ -19,6 +19,13 @@ body {
   height: 100vh;
 }
 
+/* Static pre-boot / no-JS fallback content (replaced by the app at runtime). */
+.app-fallback {
+  max-width: 720px;
+  padding: 24px;
+  line-height: 1.5;
+}
+
 .toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -37,11 +44,16 @@ body {
 
 button,
 .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
   border: 1px solid #d1d5db;
   background: #ffffff;
-  padding: 6px 10px;
   border-radius: 6px;
   font-size: 12px;
+  line-height: 1;
   cursor: pointer;
 }
 
@@ -52,6 +64,17 @@ button:hover,
 
 .button input[type="file"] {
   display: none;
+}
+
+.github-link {
+  margin-left: auto;
+  color: inherit;
+  text-decoration: none;
+}
+
+.github-link svg {
+  width: 14px;
+  height: 14px;
 }
 
 .pane {
