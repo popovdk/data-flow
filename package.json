@@ -2,6 +2,12 @@
   "name": "data-flow",
   "private": true,
   "version": "0.0.0",
+  "description": "Interactive, browser-based tool that turns a small declarative DSL into a data-flow diagram.",
+  "homepage": "https://popovdk.github.io/data-flow/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/popovdk/data-flow.git"
+  },
   "type": "module",
   "scripts": {
     "generate:parser": "node scripts/generateDslParser.mjs",

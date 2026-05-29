@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Data Flow">
+  <rect width="32" height="32" rx="7" fill="#2563eb" />
+  <rect x="5" y="7" width="10" height="6" rx="1.5" fill="#ffffff" />
+  <rect x="17" y="19" width="10" height="6" rx="1.5" fill="#ffffff" />
+  <path d="M10 13 V22 H17" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M17 22 L13.5 20 V24 Z" fill="#ffffff" />
+</svg>

@@ -1,0 +1,12 @@
+# robots.txt for the data-flow demo.
+# Note: this site is served from a project subpath (popovdk.github.io/data-flow/).
+# Crawlers fetch the authoritative robots.txt from the domain root
+# (popovdk.github.io/robots.txt), so directives here are not guaranteed to be
+# honored. Indexing is controlled via the <meta name="robots"> tag in index.html,
+# and the sitemap below should be submitted manually in Google Search Console
+# and Yandex Webmaster.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://popovdk.github.io/data-flow/sitemap.xml
