@@ -36,7 +36,7 @@ const compressText = async (text: string): Promise<Uint8Array> => {
   return new Uint8Array(buffer);
 };
 
-const decompressText = async (bytes: Uint8Array): Promise<string> => {
+const decompressText = async (bytes: Uint8Array<ArrayBuffer>): Promise<string> => {
   if (!supportsCompression()) {
     return new TextDecoder().decode(bytes);
   }
